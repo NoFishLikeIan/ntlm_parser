@@ -52,7 +52,9 @@ def decode(passed_auth=None):
     
     if message_id in process_fn:
         parsed_structure = process_fn[message_id](auth_b64)
-    else:
-        print(f"Unknown message structure.  Have a raw (hex-encoded) message:\n{auth_b64.decode('hex')}")
+        parsed_data['structure'] = parsed_structure
 
+    else:
+        raise Exception(f"Unknown message structure.  Have a raw (hex-encoded) message:\n{auth_b64.decode('hex')}")
+    
     return parsed_data
