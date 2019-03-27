@@ -1,7 +1,7 @@
 import struct
 import collections
 
-from .opt_structures import parse_str_structure, stringify_flags, StrStruct
+from .opt_structures import parse_str_structure, stringify_flags, StrStruct, clean
 
 targ_fields = ["TERMINATOR", "Server name", "AD domain name", "FQDN", "DNS domain name", "Parent DNS domain", "Server Timestamp"]
 targ_dict = dict(zip(range(len(targ_fields)), targ_fields))
@@ -26,8 +26,7 @@ def parse_challenge_type(auth_b64):
     print(f'Challenge: 0x{header_tuple[4]}')
 
     flags = header_tuple[3]
-
-
+    
     parse_str_structure('Context', auth_b64, 32)
 
     chunk = auth_b64[40:48]
@@ -35,10 +34,10 @@ def parse_challenge_type(auth_b64):
         header_tuple = struct.unpack('<hhi', chunk)
         target = StrStruct(header_tuple, auth_b64)
 
-        output = f'Traget: [block] ({target.length}b @{target.offset})'
+        output = f'Target: [block] ({target.length}b @{target.offset})'
 
         if target.alloc != target.length:
-            output += f' alloc: {target.alloc}'
+            output += f' alloc: {int(target.alloc, base = 16)}'
 
         print(output)
 
@@ -51,11 +50,13 @@ def parse_challenge_type(auth_b64):
             record_type = target_field_types[record_type_id] if record_type_id in target_field_types else 'unknown'
             record_size = record_header[1]
             substitute = raw[pos+4: pos + 4 + record_size]
-            print(f'\t{record_type, record_type_id, substitute}')
+            
+            print_sub = clean(substitute)
+            print(f'\t{record_type} ({record_type_id}): {print_sub}')
             pos += 4 + record_size
         
-        parse_str_structure('OS Ver', auth_b64, 48, simple=True)
-        print(f'Flags: 0x{flags} [{stringify_flags(flags)}]')
+    parse_str_structure('OS Ver', auth_b64, 48, simple=True)
+    print(f'Flags: {hex(flags)} [{stringify_flags(flags)}]')
 
 
 def parse_response_type(auth_b64):
