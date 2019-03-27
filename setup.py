@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 setup(name='ntlm_parser',
       version='0.1',
       description='A simple ntlm response parser',
-      url='http://github.com/storborg/funniest',
+      url='https://github.com/NoFishLikeIan/ntlm_parser.git',
       author='Andrea Titton',
       author_email='andreatitton96@gmail.com',
       long_description=long_description,
